@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Ankit Rai | OmniForge ULTRA</title>
+     <style>
+         :root {
+             --bg-deep: #090d16;
+             --bg-card: rgba(30, 41, 59, 0.7);
+             --primary-neon: #8b5cf6;
+             --secondary-neon: #06b6d4;
+             --accent-glow: #f43f5e;
+             --text-light: #f8fafc;
+             --text-muted: #94a3b8;
+             --glass-border: rgba(255, 255, 255, 0.1);
+         }
+         body {
+             font-family: "Segoe UI", system-ui, sans-serif;
+             background: radial-gradient(circle at top right, #1e1b4b, var(--bg-deep));
+             color: var(--text-light);
+             margin: 0; padding: 15px; min-height: 100vh;
+             display: flex; flex-direction: column; align-items: center;
+         }
+         .wrapper { width: 100%; max-width: 1000px; display: flex; flex-direction: column; gap: 25px; }
+         .hero { text-align: center; padding: 30px 20px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1)); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(12px); box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+         .hero h1 { font-size: 2.5rem; margin: 0 0 10px 0; background: linear-gradient(to right, #c084fc, #6366f1, #22d3ee); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+         .prompt-panel { background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; }
+         textarea { width: 100%; height: 100px; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; color: white; padding: 15px; font-size: 1.05rem; resize: none; box-sizing: border-box; }
+         .btn-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 15px; }
+         .mode-btn { background: rgba(51, 65, 85, 0.5); border: 1px solid var(--glass-border); color: white; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; }
+         .mode-btn.active { background: linear-gradient(135deg, var(--primary-neon), #4f46e5); border-color: transparent; }
+         .forge-btn { background: linear-gradient(90deg, #10b981, var(--secondary-neon)); color: white; border: none; padding: 16px; font-size: 1.2rem; font-weight: bold; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+         .workspace { background: var(--bg-card); border: 2px solid #334155; border-radius: 24px; padding: 25px; min-height: 400px; position: relative; }
+         .status-badge { position: absolute; top: 15px; right: 25px; background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 6px 12px; border-radius: 50px; font-size: 0.85rem; font-weight: bold; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 6px; }
+         .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; }
+         .workspace-title { color: #a78bfa; margin-top: 0; margin-bottom: 20px; font-size: 1.5rem; }
+         .app-render { display: none; }
+         .app-render.active { display: block; }
+         #renderCanvas { background: #020617; border: 2px solid var(--glass-border); border-radius: 12px; display: block; margin: 0 auto; max-width: 100%; }
+         .dynamic-quiz-box { background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 12px; border: 1px solid var(--glass-border); }
+         .opt-row { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+         .selected-correct { background: #065f46 !important; border-color: #10b981 !important; }
+         .selected-wrong { background: #991b1b !important; border-color: #ef4444 !important; }
+         .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px; margin-bottom: 20px; }
+         .metric-card { background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--glass-border); }
+         .metric-val { font-size: 1.6rem; font-weight: bold; color: var(--secondary-neon); }
+         .metric-lbl { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+     </style>
+ </head>
+ <body>
+     <div class="wrapper">
+         <div class="hero">
+             <h1>OMNIFORGE ULTRA</h1>
+             <p>मालिक: अंकित राय | विज़न-टू-कोड इंजन</p>
+         </div>
+         <div class="prompt-panel">
+             <div style="margin-bottom:10px; color:var(--secondary-neon);">एआई को अपनी कल्पना बताएं:</div>
+             <textarea id="userPrompt" placeholder="उदाहरण: Space Shooter Game, Cricket Game, Math Quiz..."></textarea>
+             <div class="btn-group">
+                 <button class="mode-btn active" onclick="setMode('game', this)">Game Engine</button>
+                 <button class="mode-btn" onclick="setMode('quiz', this)">Quiz Hub</button>
+                 <button class="mode-btn" onclick="setMode('app', this)">Utility App</button>
+             </div>
+             <button class="forge-btn" onclick="forgeSolution()">FORGE & DEPLOY SOLUTION</button>
+         </div>
+         <div class="workspace">
+             <div class="status-badge"><div class="status-dot"></div><span id="engineStatus">IDLE READY</span></div>
+             <h2 class="workspace-title" id="outputTitle">आपका लाइव प्रोजेक्ट यहाँ दिखेगा</h2>
+             <div id="gameEngine" class="app-render">
+                 <div class="metric-grid">
+                     <div class="metric-card"><div class="metric-val" id="gVal1">0</div><div class="metric-lbl" id="gLbl1">स्कोर</div></div>
+                     <div class="metric-card"><div class="metric-val" id="gVal2">100%</div><div class="metric-lbl" id="gLbl2">हेल्थ</div></div>
+                 </div>
+                 <canvas id="renderCanvas" width="600" height="280"></canvas>
+                 <div style="text-align: center; margin-top: 15px;">
+                     <button class="mode-btn" style="background: var(--accent-glow);" id="gameActionBtn">ACTION TRIGGER (JUMP)</button>
+                 </div>
+             </div>
+             <div id="quizEngine" class="app-render">
+                 <div class="dynamic-quiz-box">
+                     <h3 id="quizQuestion">प्रश्न देखने के लिए ऊपर कमांड देकर Forge पर क्लिक करें।</h3>
+                     <div id="quizOptions"></div>
+                     <div style="margin-top:15px; display:flex; justify-content:space-between;">
+                         <span id="quizScoreTracker" style="color:var(--secondary-neon);">प्रोग्रेस: 0/0</span>
+                         <button class="mode-btn" id="quizNextBtn" style="display:none;" onclick="nextQuizStep()">अगला प्रश्न</button>
+                     </div>
+                 </div>
+             </div>
+             <div id="appEngine" class="app-render"><div class="metric-grid" id="appMetrics"></div><div class="dynamic-quiz-box" id="appDataContent"></div></div>
+         </div>
+     </div>
+     <script>
+         let currentMode = "game"; let canvasAnimFrame;
+         const canvas = document.getElementById("renderCanvas"); const ctx = canvas.getContext("2d");
+         let playerX = 80, playerY = 200, targetX = 550, targetY = 200; let gameScore = 0, playerHealth = 100; let gameItemType = "ball";
+         function setMode(mode, element) { currentMode = mode; document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active")); element.classList.add("active"); }
+         function forgeSolution() {
